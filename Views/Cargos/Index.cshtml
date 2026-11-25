@@ -65,10 +65,11 @@
                         <small>Ejemplo: Médico general.</small>
                     </div>
 
-                    <!-- LIST BOX DE DEPARTAMENTOS -->
+                    <!-- COMBO BOX DE DEPARTAMENTOS -->
                     <div class="dep-field">
                         <label for="departamentoNuevo">Departamento</label>
-                        <select id="departamentoNuevo" name="departamentoCodigo" size="5" required>
+                        <select id="departamentoNuevo" name="departamentoCodigo" required>
+                            <option value="">-- Seleccione un departamento --</option>
                             @foreach (var d in Model.Departamentos)
                             {
                                 <option value="@d.Codigo" selected="@(d.Codigo == Model.Nuevo.DepartamentoCodigo)">@d.Codigo - @d.Descripcion</option>
@@ -208,7 +209,8 @@
             </div>
             <div class="dep-field">
                 <label for="departamentoEdicion">Departamento</label>
-                <select id="departamentoEdicion" name="departamentoCodigo" size="5" required>
+                <select id="departamentoEdicion" name="departamentoCodigo" required>
+                    <option value="">-- Seleccione un departamento --</option>
                     @foreach (var d in Model.Departamentos)
                     {
                         <option value="@d.Codigo" selected="@(d.Codigo == Model.Edicion?.DepartamentoCodigo)">@d.Codigo - @d.Descripcion</option>

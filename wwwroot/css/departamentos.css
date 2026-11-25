@@ -78,18 +78,32 @@
   border-radius: 100px; padding: 7px 11px;
 }
 
-.crud-premium .dep-field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
-.crud-premium .dep-field label { font-weight: 700; font-size: .8rem; color: #404b5a; }
-.crud-premium .dep-field input[type="text"] {
-  width: 100%; min-width: 0; font-family: inherit; font-size: .92rem;
-  color: #293442; background: #fff; border: 1.5px solid #d2dae1;
-  border-radius: 10px; padding: 12px 13px; min-height: 44px;
-  transition: border-color .16s ease, box-shadow .16s ease;
-}
-.crud-premium .dep-field input[type="text"]:focus,
-.crud-premium .dep-search-controls input:focus {
-  outline: none; border-color: #2a85d0; box-shadow: 0 0 0 3px rgba(31, 111, 181, .18);
-}
+    .crud-premium .dep-field input[type="text"],
+    .crud-premium .dep-field select {
+        width: 100%;
+        min-width: 0;
+        font-family: inherit;
+        font-size: .92rem;
+        color: #293442;
+        background: #fff;
+        border: 1.5px solid #d2dae1;
+        border-radius: 10px;
+        padding: 12px 13px;
+        min-height: 44px;
+        transition: border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .crud-premium .dep-field select {
+        cursor: pointer;
+    }
+
+        .crud-premium .dep-field input[type="text"]:focus,
+        .crud-premium .dep-field select:focus,
+        .crud-premium .dep-search-controls input:focus {
+            outline: none;
+            border-color: #2a85d0;
+            box-shadow: 0 0 0 3px rgba(31, 111, 181, .18);
+        }
 .crud-premium .dep-field small { color: #89909b; font-size: .72rem; line-height: 1.4; }
 .crud-premium .dep-field input.dep-readonly { background: #f2f5f8; color: #66717e; cursor: default; }
 .crud-premium .dep-form-actions { display: grid; gap: 10px; margin-top: 23px; }
