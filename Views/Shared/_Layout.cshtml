@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="~/img/favicon.svg" />
+    <title>@ViewData["Title"] | SIGH</title>
+    <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Estilos", required: false)
+</head>
+<body class="@ViewData["BodyClass"]">
+
+    <header class="encabezado">
+        <div class="marca">
+            <partial name="_Logo" />
+            <div class="marca-texto">
+                <span class="marca-nombre">SIGH</span>
+                <span class="marca-sub">Sistema Integral de Gestión Hospitalaria</span>
+            </div>
+        </div>
+        @await RenderSectionAsync("EncabezadoExtra", required: false)
+    </header>
+
+    @await RenderSectionAsync("Franja", required: false)
+
+    @RenderBody()
+
+    <footer class="pie">SIGH · Grupo SIGH_GR04</footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

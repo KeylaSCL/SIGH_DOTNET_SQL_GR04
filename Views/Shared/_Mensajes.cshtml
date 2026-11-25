@@ -1,0 +1,24 @@
+@model string
+@{
+    var errores = ViewData.ModelState.Values
+        .SelectMany(v => v.Errors)
+        .Select(e => e.ErrorMessage)
+        .Where(m => !string.IsNullOrWhiteSpace(m))
+        .ToList();
+
+    if (TempData["Error"] is string errorTemp) { errores.Add(errorTemp); }
+    var ok = TempData["Ok"] as string;
+}
+@if (errores.Count > 0 || !string.IsNullOrEmpty(ok))
+{
+    <ul class="mensajes @Model">
+        @if (!string.IsNullOrEmpty(ok))
+        {
+            <li class="msg-info">@ok</li>
+        }
+        @foreach (var e in errores)
+        {
+            <li class="msg-error">@e</li>
+        }
+    </ul>
+}

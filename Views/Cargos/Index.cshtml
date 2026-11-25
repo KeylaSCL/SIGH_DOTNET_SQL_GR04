@@ -1,0 +1,229 @@
+﻿@model CargosViewModel
+@{
+    ViewData["Title"] = "Gestión de cargos";
+    ViewData["BodyClass"] = "crud-premium";
+    bool editando = Model.Edicion != null;
+    bool sinDepartamentos = Model.Departamentos.Count == 0;
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/departamentos.css" asp-append-version="true" />
+}
+
+@section EncabezadoExtra {
+    <span class="dep-header-label">Administración hospitalaria</span>
+}
+
+@section Franja {
+    <div class="franja dep-topbar">
+        <span>Gestión de datos <span class="dep-topbar-separador">/</span> Cargos</span>
+        <a class="boton boton-franja" asp-controller="Home" asp-action="Inicio">Volver al inicio</a>
+    </div>
+}
+
+<main class="dep-main">
+    <div class="dep-shell">
+        <div class="dep-introduccion">
+            <div class="dep-intro-copy">
+                <span class="dep-eyebrow">MÓDULO DE DATOS</span>
+                <h1>Gestión de cargos</h1>
+                <p>Registre los cargos del hospital y asígnelos a un departamento. Puede buscar, editar o eliminar registros de forma sencilla.</p>
+            </div>
+            <div class="dep-counter" aria-label="Número de cargos registrados">
+                <span class="dep-counter-num">@Model.Lista.Count</span>
+                <span class="dep-counter-caption">Cargos<br />registrados</span>
+            </div>
+        </div>
+
+        @if (!editando)
+        {
+            <partial name="_Mensajes" model='"dep-mensajes"' />
+        }
+
+        <div class="dep-grid">
+            <!-- CREAR -->
+            <section class="dep-card dep-card-crear" aria-labelledby="tituloCrear">
+                <div class="dep-card-heading">
+                    <span class="dep-step">01</span>
+                    <div>
+                        <h2 id="tituloCrear">Nuevo cargo</h2>
+                        <p>Complete los datos para registrar un cargo nuevo.</p>
+                    </div>
+                </div>
+
+                <form asp-action="Registrar" method="post" class="dep-form">
+                    <div class="dep-field">
+                        <label for="codigoNuevo">Código del cargo</label>
+                        <input type="text" id="codigoNuevo" name="codigo" maxlength="3" required
+                               value="@Model.Nuevo.Codigo" autocomplete="off" />
+                        <small>Exactamente 3 caracteres. Ejemplo: C01</small>
+                    </div>
+                    <div class="dep-field">
+                        <label for="descripcionNuevo">Nombre o descripción</label>
+                        <input type="text" id="descripcionNuevo" name="descripcion" maxlength="50" required
+                               value="@Model.Nuevo.Descripcion" autocomplete="off" />
+                        <small>Ejemplo: Médico general.</small>
+                    </div>
+
+                    <!-- LIST BOX DE DEPARTAMENTOS -->
+                    <div class="dep-field">
+                        <label for="departamentoNuevo">Departamento</label>
+                        <select id="departamentoNuevo" name="departamentoCodigo" size="5" required>
+                            @foreach (var d in Model.Departamentos)
+                            {
+                                <option value="@d.Codigo" selected="@(d.Codigo == Model.Nuevo.DepartamentoCodigo)">@d.Codigo - @d.Descripcion</option>
+                            }
+                        </select>
+                        <small>Seleccione el departamento al que pertenece el cargo.</small>
+                    </div>
+
+                    @if (sinDepartamentos)
+                    {
+                        <div class="dep-warning">
+                            Aún no hay departamentos. Registre uno primero en el módulo de Departamentos.
+                        </div>
+                    }
+
+                    <div class="dep-form-actions">
+                        <button type="submit" class="dep-btn dep-btn-primary" disabled="@sinDepartamentos">Registrar cargo</button>
+                        <a asp-action="Index" class="dep-btn dep-btn-outline">Limpiar campos</a>
+                    </div>
+                </form>
+                <div class="dep-hint">
+                    <strong>Consejo</strong>
+                    <span>El código identifica cada cargo y no podrá modificarse después. Compruébelo antes de guardar.</span>
+                </div>
+            </section>
+
+            <!-- CONSULTAR / MODIFICAR / ELIMINAR -->
+            <section class="dep-card dep-card-lista" aria-labelledby="tituloListado">
+                <div class="dep-card-heading dep-list-heading">
+                    <div class="dep-title-inline">
+                        <span class="dep-step">02</span>
+                        <div>
+                            <h2 id="tituloListado">Cargos registrados</h2>
+                            <p>Encuentre un cargo y seleccione la acción que necesita.</p>
+                        </div>
+                    </div>
+                    <span class="dep-count-chip">@Model.Lista.Count en total</span>
+                </div>
+
+                @if (Model.Lista.Count > 0)
+                {
+                    <div class="dep-toolbar">
+                        <div class="dep-search-wrap">
+                            <label for="buscadorDepartamentos">Buscar cargo</label>
+                            <div class="dep-search-controls">
+                                <!-- Se mantienen los mismos id para reutilizar buscador.js -->
+                                <input id="buscadorDepartamentos" type="search"
+                                       placeholder="Código, cargo o departamento"
+                                       autocomplete="off" />
+                                <button type="button" id="btnLimpiarBusqueda" class="dep-btn-search-clear">Limpiar</button>
+                            </div>
+                        </div>
+                        <span id="contadorDepartamentos" class="dep-results-count" aria-live="polite"></span>
+                    </div>
+
+                    <div class="dep-table-scroll">
+                        <table class="tabla dep-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Cargo</th>
+                                    <th>Departamento</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var c in Model.Lista)
+                                {
+                                    <tr>
+                                        <td class="col-codigo"><span class="dep-code">@c.Codigo</span></td>
+                                        <td class="col-desc">@c.Descripcion</td>
+                                        <td class="col-depto">@c.DepartamentoCodigo - @c.DepartamentoDescripcion</td>
+                                        <td class="col-acciones">
+                                            <div class="dep-row-actions">
+                                                <button type="button" class="dep-row-btn dep-row-btn-edit"
+                                                        data-accion="editar"
+                                                        data-codigo="@c.Codigo"
+                                                        data-descripcion="@c.Descripcion"
+                                                        data-departamento="@c.DepartamentoCodigo">
+                                                    Editar
+                                                </button>
+                                                <form asp-action="Eliminar" method="post"
+                                                      class="form-eliminar" data-codigo="@c.Codigo">
+                                                    <input type="hidden" name="codigo" value="@c.Codigo" />
+                                                    <button type="submit" class="dep-row-btn dep-row-btn-delete">Eliminar</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="sinResultados" class="dep-filter-empty oculto" role="status">
+                        No se encontraron cargos que coincidan con la búsqueda.
+                    </div>
+                    <p class="dep-table-note">Editar permite cambiar el nombre y el departamento. Eliminar quita el cargo seleccionado de forma definitiva.</p>
+                }
+                else
+                {
+                    <div class="dep-empty">
+                        <div class="dep-empty-icon" aria-hidden="true">+</div>
+                        <h3>Aún no hay cargos</h3>
+                        <p>Comience registrando el primero en el formulario de la izquierda.</p>
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+</main>
+
+<!-- MODIFICAR: ventana centrada; se abre con "Editar" (o queda abierta si hubo un error) -->
+<div id="modalEditar" class="dep-modal-backdrop @(editando ? "" : "oculto")">
+    <section class="dep-dialog" role="dialog" aria-modal="true" aria-labelledby="depDialogTitulo">
+        <div class="dep-dialog-header">
+            <span class="dep-eyebrow">EDITAR REGISTRO</span>
+            <h2 id="depDialogTitulo">Modificar cargo</h2>
+            <p>Revise la información y guarde los cambios.</p>
+        </div>
+
+        @if (editando)
+        {
+            <partial name="_Mensajes" model='"dep-mensajes"' />
+        }
+
+        <form asp-action="Actualizar" method="post" class="dep-form">
+            <div class="dep-field">
+                <label for="codigoEdicion">Código (no editable)</label>
+                <input type="text" id="codigoEdicion" name="codigo" readonly class="dep-readonly"
+                       value="@Model.Edicion?.Codigo" />
+            </div>
+            <div class="dep-field">
+                <label for="descripcionEdicion">Nombre o descripción</label>
+                <input type="text" id="descripcionEdicion" name="descripcion" maxlength="50" required
+                       value="@Model.Edicion?.Descripcion" autocomplete="off" />
+                <small>Puede escribir hasta 50 caracteres.</small>
+            </div>
+            <div class="dep-field">
+                <label for="departamentoEdicion">Departamento</label>
+                <select id="departamentoEdicion" name="departamentoCodigo" size="5" required>
+                    @foreach (var d in Model.Departamentos)
+                    {
+                        <option value="@d.Codigo" selected="@(d.Codigo == Model.Edicion?.DepartamentoCodigo)">@d.Codigo - @d.Descripcion</option>
+                    }
+                </select>
+            </div>
+            <div class="dep-dialog-actions">
+                <button type="button" class="dep-btn dep-btn-outline" data-accion="cancelar-edicion">Cancelar</button>
+                <button type="submit" class="dep-btn dep-btn-primary">Guardar cambios</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/buscador.js" asp-append-version="true"></script>
+    <script src="~/js/cargos.js" asp-append-version="true"></script>
+}

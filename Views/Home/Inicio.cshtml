@@ -1,0 +1,29 @@
+@{
+    ViewData["Title"] = "Inicio";
+}
+
+@section Franja {
+    <div class="franja">
+        <span>Panel principal</span>
+        <a class="boton boton-franja" asp-controller="Departamentos" asp-action="Index">Departamentos</a>
+        <a class="boton boton-franja" asp-controller="Cargos" asp-action="Index">Cargos</a>
+        <form asp-controller="Login" asp-action="Salir" method="post">
+            <button type="submit" class="boton boton-franja">Cerrar sesión</button>
+        </form>
+    </div>
+}
+
+<div class="contenido">
+    <div class="tarjeta tarjeta-ancha tarjeta-mascota">
+
+        <div class="mascota-flotante"><partial name="_Mascota" /></div>
+
+        <h1>Bienvenido al Sistema Hospitalario SIGH</h1>
+
+        <div class="usuario-activo">
+            <span class="etiqueta">Usuario autenticado: </span>
+            <span class="valor">@User.Identity.Name</span>
+        </div>
+
+    </div>
+</div>

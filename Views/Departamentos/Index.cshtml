@@ -1,0 +1,193 @@
+@model DepartamentosViewModel
+@{
+    ViewData["Title"] = "Gestión de departamentos";
+    ViewData["BodyClass"] = "crud-premium";
+    bool editando = Model.Edicion != null;
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/departamentos.css" asp-append-version="true" />
+}
+
+@section EncabezadoExtra {
+    <span class="dep-header-label">Administración hospitalaria</span>
+}
+
+@section Franja {
+    <div class="franja dep-topbar">
+        <span>Gestión de datos <span class="dep-topbar-separador">/</span> Departamentos</span>
+        <a class="boton boton-franja" asp-controller="Home" asp-action="Inicio">Volver al inicio</a>
+    </div>
+}
+
+<main class="dep-main">
+    <div class="dep-shell">
+        <div class="dep-introduccion">
+            <div class="dep-intro-copy">
+                <span class="dep-eyebrow">MÓDULO DE DATOS</span>
+                <h1>Gestión de departamentos</h1>
+                <p>Registre y administre las áreas del hospital desde un solo lugar. Puede buscar, editar o eliminar registros de forma sencilla.</p>
+            </div>
+            <div class="dep-counter" aria-label="Número de departamentos registrados">
+                <span class="dep-counter-num">@Model.Lista.Count</span>
+                <span class="dep-counter-caption">Departamentos<br />registrados</span>
+            </div>
+        </div>
+
+        @if (!editando)
+        {
+            <partial name="_Mensajes" model='"dep-mensajes"' />
+        }
+
+        <div class="dep-grid">
+            <!-- CREAR -->
+            <section class="dep-card dep-card-crear" aria-labelledby="tituloCrear">
+                <div class="dep-card-heading">
+                    <span class="dep-step">01</span>
+                    <div>
+                        <h2 id="tituloCrear">Nuevo departamento</h2>
+                        <p>Complete los datos para registrar un área nueva.</p>
+                    </div>
+                </div>
+
+                <form asp-action="Registrar" method="post" class="dep-form">
+                    <div class="dep-field">
+                        <label for="codigoNuevo">Código del departamento</label>
+                        <input type="text" id="codigoNuevo" name="codigo" maxlength="3"
+                               value="@Model.Nuevo.Codigo" autocomplete="off" />
+                        <small>Exactamente 3 caracteres. Ejemplo: D01</small>
+                    </div>
+                    <div class="dep-field">
+                        <label for="descripcionNuevo">Nombre o descripción</label>
+                        <input type="text" id="descripcionNuevo" name="descripcion" maxlength="50"
+                               value="@Model.Nuevo.Descripcion" autocomplete="off" />
+                        <small>Nombre reconocible, por ejemplo: Radiología.</small>
+                    </div>
+                    <div class="dep-form-actions">
+                        <button type="submit" class="dep-btn dep-btn-primary">Registrar departamento</button>
+                        <a asp-action="Index" class="dep-btn dep-btn-outline">Limpiar campos</a>
+                    </div>
+                </form>
+                <div class="dep-hint">
+                    <strong>Consejo</strong>
+                    <span>El código identifica cada departamento y no podrá modificarse después. Compruébelo antes de guardar.</span>
+                </div>
+            </section>
+
+            <!-- CONSULTAR / MODIFICAR / ELIMINAR -->
+            <section class="dep-card dep-card-lista" aria-labelledby="tituloListado">
+                <div class="dep-card-heading dep-list-heading">
+                    <div class="dep-title-inline">
+                        <span class="dep-step">02</span>
+                        <div>
+                            <h2 id="tituloListado">Departamentos registrados</h2>
+                            <p>Encuentre un área y seleccione la acción que necesita.</p>
+                        </div>
+                    </div>
+                    <span class="dep-count-chip">@Model.Lista.Count en total</span>
+                </div>
+
+                @if (Model.Lista.Count > 0)
+                {
+                    <div class="dep-toolbar">
+                        <div class="dep-search-wrap">
+                            <label for="buscadorDepartamentos">Buscar departamento</label>
+                            <div class="dep-search-controls">
+                                <input id="buscadorDepartamentos" type="search"
+                                       placeholder="Código o nombre del departamento"
+                                       autocomplete="off" />
+                                <button type="button" id="btnLimpiarBusqueda" class="dep-btn-search-clear">Limpiar</button>
+                            </div>
+                        </div>
+                        <span id="contadorDepartamentos" class="dep-results-count" aria-live="polite"></span>
+                    </div>
+
+                    <div class="dep-table-scroll">
+                        <table class="tabla dep-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descripción</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var d in Model.Lista)
+                                {
+                                    <tr>
+                                        <td class="col-codigo"><span class="dep-code">@d.Codigo</span></td>
+                                        <td class="col-desc">@d.Descripcion</td>
+                                        <td class="col-acciones">
+                                            <div class="dep-row-actions">
+                                                <button type="button" class="dep-row-btn dep-row-btn-edit"
+                                                        data-accion="editar"
+                                                        data-codigo="@d.Codigo"
+                                                        data-descripcion="@d.Descripcion">Editar</button>
+                                                <form asp-action="Eliminar" method="post"
+                                                      class="form-eliminar" data-codigo="@d.Codigo">
+                                                    <input type="hidden" name="codigo" value="@d.Codigo" />
+                                                    <button type="submit" class="dep-row-btn dep-row-btn-delete">Eliminar</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="sinResultados" class="dep-filter-empty oculto" role="status">
+                        No se encontraron departamentos que coincidan con la búsqueda.
+                    </div>
+                    <p class="dep-table-note">Editar cambia la descripción. Eliminar quita el departamento seleccionado de forma definitiva.</p>
+                }
+                else
+                {
+                    <div class="dep-empty">
+                        <div class="dep-empty-icon" aria-hidden="true">+</div>
+                        <h3>Aún no hay departamentos</h3>
+                        <p>Comience registrando el primero en el formulario de la izquierda.</p>
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+</main>
+
+<!-- MODIFICAR: ventana centrada; se abre con "Editar" (o queda abierta si hubo un error) -->
+<div id="modalEditar" class="dep-modal-backdrop @(editando ? "" : "oculto")">
+    <section class="dep-dialog" role="dialog" aria-modal="true" aria-labelledby="depDialogTitulo">
+        <div class="dep-dialog-header">
+            <span class="dep-eyebrow">EDITAR REGISTRO</span>
+            <h2 id="depDialogTitulo">Modificar departamento</h2>
+            <p>Revise la información y guarde los cambios en la descripción.</p>
+        </div>
+
+        @if (editando)
+        {
+            <partial name="_Mensajes" model='"dep-mensajes"' />
+        }
+
+        <form asp-action="Actualizar" method="post" class="dep-form">
+            <div class="dep-field">
+                <label for="codigoEdicion">Código (no editable)</label>
+                <input type="text" id="codigoEdicion" name="codigo" readonly class="dep-readonly"
+                       value="@Model.Edicion?.Codigo" />
+            </div>
+            <div class="dep-field">
+                <label for="descripcionEdicion">Nombre o descripción</label>
+                <input type="text" id="descripcionEdicion" name="descripcion" maxlength="50" required
+                       value="@Model.Edicion?.Descripcion" autocomplete="off" />
+                <small>Puede escribir hasta 50 caracteres.</small>
+            </div>
+            <div class="dep-dialog-actions">
+                <button type="button" class="dep-btn dep-btn-outline" data-accion="cancelar-edicion">Cancelar</button>
+                <button type="submit" class="dep-btn dep-btn-primary">Guardar cambios</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/buscador.js" asp-append-version="true"></script>
+    <script src="~/js/departamentos.js" asp-append-version="true"></script>
+}

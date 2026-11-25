@@ -1,0 +1,41 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+@section Franja {
+    <div class="franja">
+        <span>Acceso seguro para el personal autorizado</span>
+    </div>
+}
+
+<div class="contenido">
+    <div class="tarjeta tarjeta-mascota">
+
+        <div class="mascota-flotante"><partial name="_Mascota" /></div>
+
+        <h1>Sistema Integral de Gestión Hospitalaria</h1>
+        <h2>Inicio de sesión</h2>
+
+        <form asp-controller="Login" asp-action="Index" method="post">
+
+            <partial name="_Mensajes" model="string.Empty" />
+
+            <div class="campo">
+                <label for="codigo">Usuario</label>
+                <input type="text" id="codigo" name="Codigo" value="@Model.Codigo"
+                       autocomplete="username" autofocus />
+            </div>
+
+            <div class="campo">
+                <label for="clave">Contraseña</label>
+                <input type="password" id="clave" name="Clave"
+                       autocomplete="current-password" />
+            </div>
+
+            <button type="submit" class="boton">Iniciar sesión</button>
+
+        </form>
+
+    </div>
+</div>
